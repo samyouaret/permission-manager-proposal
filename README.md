@@ -118,7 +118,7 @@ console.log(authorAssignment);
 
 ### Validation ❗ ❗
 
-To validate Usability of this permission management system, we need to implement three storages types:
+To validate Usability of this permission management system, we need to implement some of these storages types:
 
 1. InMemoryStorage.
 2. SQl Storage.
