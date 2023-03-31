@@ -66,6 +66,7 @@ const newPermission = {
   inverted: false,
   reason: "You are not the author of the post",
 };
+
 permissionStorage.add(newPermission);
 
 console.log(permissionStorage.getAll());
