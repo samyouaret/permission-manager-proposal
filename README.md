@@ -176,3 +176,60 @@ console.log(assignmentStorage.hasRole("admin"));
 
 console.log(assignmentStorage.get("admin", "user1"));
 ```
+
+### An example with PermissionManager and CASL library
+
+```js
+
+const permissionManager = new PermissionManager(
+  new RoleStorage(),
+  new PermissionStorage(),
+  new RolePermissionsStorage(),
+  new AssignmentStorage()
+);
+
+const newPermission = permissionManager.createPermission({
+  name: "createPost",
+  action: "createPost",
+  subject: "User",
+  conditions: {
+    isAuthor: true,
+  },
+  inverted: false,
+  reason: "You are not the author of the post",
+});
+
+const newRole = permissionManager.createRole("author");
+permissionManager.attachPermission(newRole, newPermission);
+
+class User implements UserType {
+  constructor(public id: number, public isAuthor: boolean) {}
+}
+
+const user = new User(1, true);
+permissionManager.assign(newRole, user);
+
+const assignment = permissionManager.getAssignment("author", user);
+
+console.log(assignment);
+
+const permissions = permissionManager.getPermissions();
+
+console.log(permissions);
+const ability = defineAbilityFor(user, permissions);
+// test ability of user to CreatePost
+console.log(ability.can("createPost", user));
+
+function defineAbilityFor(user: UserType, permissions: PermissionType[]) {
+  const { can, cannot, build } = new AbilityBuilder(Ability);
+  // Add permissions to the builder
+  permissions.forEach((permission) => {
+    if (permission.inverted) {
+      cannot(permission.name, permission.subject, permission.conditions);
+    } else {
+      can(permission.name, permission.subject, permission.conditions);
+    }
+  });
+  return build();
+}
+```
