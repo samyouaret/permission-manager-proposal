@@ -26,6 +26,15 @@ export interface RolePermissionsStorageInterface {
   has(roleName: string, PermissionName: string): boolean;
 
   /**
+   * Returns whether permission is used by any role.
+   *
+   * @param name The role name.
+   *
+   * @return whether permission is used by any role.
+   */
+  hasPermission(PermissionName: string): boolean;
+
+  /**
    * Adds the permission to role.
    *
    * @param item The role to add.

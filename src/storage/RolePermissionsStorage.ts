@@ -8,6 +8,15 @@ export class RolePermissionsStorage implements RolePermissionsStorageInterface {
     this.RolePermissions = new Map();
   }
 
+  hasPermission(PermissionName: string): boolean {
+    for (const [_roleName, permissions] of this.RolePermissions) {
+      if (permissions.has(PermissionName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   clear(roleName: string): void {
     this.RolePermissions.delete(roleName);
   }
