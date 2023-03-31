@@ -35,3 +35,22 @@ export class RoleStorage implements RoleStorageInterface {
     this.roles.delete(name);
   }
 }
+
+const roleStorage = new RoleStorage();
+
+const newRole = {
+  name: "admin",
+  description: "Admin role",
+};
+
+roleStorage.add(newRole);
+
+console.log(roleStorage.get("admin"));
+
+console.log(roleStorage.getAll());
+
+console.log(roleStorage.exists("admin"));
+
+roleStorage.remove("admin");
+
+console.log(roleStorage.exists("admin"));

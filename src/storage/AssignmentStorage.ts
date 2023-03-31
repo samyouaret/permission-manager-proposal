@@ -96,6 +96,12 @@ assignmentStorage.add("admin", "1");
 assignmentStorage.add("Author", "1");
 // get all assignments for user
 
-const assignments = assignmentStorage.getByUserId("1");
+let assignments = assignmentStorage.getByUserId("1");
 
 console.log(assignments);
+
+let adminAssignment = assignmentStorage.get("admin", "1");
+let authorAssignment = assignmentStorage.get("Author", "1");
+
+console.log(adminAssignment);
+console.log(authorAssignment);
