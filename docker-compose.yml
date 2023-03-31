@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_DB=casl_db
+      - POSTGRES_PASSWORD=postgres_pass
+      - POSTGRES_PORT=5432
+    volumes:
+      - postgres_vol:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+volumes:
+  postgres_vol:

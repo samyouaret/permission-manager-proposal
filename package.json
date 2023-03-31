@@ -1,0 +1,24 @@
+{
+  "name": "casl-postgres",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "samyouaret <samyouaret13@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest -- ./tests --runInBand --detectOpenHandles",
+    "prepublishOnly": "tsc",
+    "start": "ts-node src/index.ts",
+    "run:permissions": "ts-node src/Permission.ts"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.6.6",
+    "ts-node": "^10.9.1",
+    "tsc": "^2.0.4",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "@casl/ability": "^6.3.3",
+    "pg": "^8.10.0"
+  }
+}
