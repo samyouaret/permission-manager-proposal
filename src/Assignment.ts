@@ -8,9 +8,9 @@ class Assignment {
   private userId: string;
 
   /**
-   * The role or permission name.
+   * The role name.
    */
-  private itemName: string;
+  private roleName: string;
 
   /**
    * UNIX timestamp representing the assignment creation time.
@@ -19,12 +19,12 @@ class Assignment {
 
   /**
    * @param userId The user ID. This should be a string representing the unique identifier of a user.
-   * @param itemName The role or permission name.
+   * @param roleName The role name.
    * @param createdAt UNIX timestamp representing the assignment creation time.
    */
-  constructor(userId: string, itemName: string, createdAt: number) {
+  constructor(userId: string, roleName: string, createdAt: number) {
     this.userId = userId;
-    this.itemName = itemName;
+    this.roleName = roleName;
     this.createdAt = createdAt;
   }
 
@@ -32,11 +32,11 @@ class Assignment {
     return this.userId;
   }
 
-  public getItemName(): string {
-    return this.itemName;
+  public getRoleName(): string {
+    return this.roleName;
   }
 
-  public withItemName(roleName: string): Assignment {
+  public withRoleName(roleName: string): Assignment {
     const newAssignment = new Assignment(this.userId, roleName, this.createdAt);
     return newAssignment;
   }
