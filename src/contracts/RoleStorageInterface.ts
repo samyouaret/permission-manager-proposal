@@ -1,4 +1,6 @@
-import { Role } from "./PermissionManager";
+export interface Role {
+  name: string;
+}
 
 /**
  * A storage for RBAC roles used in {@see Manager}.

@@ -1,7 +1,9 @@
+import { AssignmentInterface } from "./contracts/AssignmentInterface";
+
 /**
  * `Assignment` represents an assignment of a role or a permission to a user.
  */
-class Assignment {
+export class Assignment implements AssignmentInterface {
   /**
    * The user ID. This should be a string representing the unique identifier of a user.
    */
@@ -36,7 +38,7 @@ class Assignment {
     return this.roleName;
   }
 
-  public withRoleName(roleName: string): Assignment {
+  public withRoleName(roleName: string): AssignmentInterface {
     const newAssignment = new Assignment(this.userId, roleName, this.createdAt);
     return newAssignment;
   }

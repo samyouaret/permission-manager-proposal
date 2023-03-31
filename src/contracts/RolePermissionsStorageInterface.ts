@@ -1,4 +1,4 @@
-import { PermissionType, Role } from "./PermissionManager";
+import { PermissionType, Role } from "../PermissionManager";
 
 /**
  * A storage for Roles Permissions.
