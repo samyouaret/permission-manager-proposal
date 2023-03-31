@@ -180,7 +180,7 @@ console.log(assignmentStorage.get("admin", "user1"));
 ### An example with PermissionManager and CASL library
 
 ```js
-
+// we use PermissionManagerv2 for this example
 const permissionManager = new PermissionManager(
   new RoleStorage(),
   new PermissionStorage(),
