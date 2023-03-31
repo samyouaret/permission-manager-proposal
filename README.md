@@ -5,7 +5,7 @@
 
 ### Role Storage
 
-```
+```js
 const roleStorage = new RoleStorage();
 
 const newRole = {
