@@ -1,5 +1,12 @@
 # permission-manager-proposal
 
+## Introduction
+
+This is a proposal for a permission manager for nodejs. It is based on the [rbac](https://en.wikipedia.org/wiki/Role-based_access_control) model.
+
+the main idea is to have a storage for roles, permissions and assignments. The storage can be any storage that implements the storage interface.
+
+it could be a InMemory storage like Javascript DataStructure or any custom dataStructure, database, any, a file, a redis instance, etc.
 
 ## Usage
 
@@ -108,3 +115,13 @@ let authorAssignment = assignmentStorage.get("Author", "1");
 console.log(adminAssignment);
 console.log(authorAssignment);
 ```
+
+
+### Validation
+
+To validate Usability of this permission management system, we need to implement three storages types:
+
+1. InMemoryStorage.
+2. SQl Storage.
+3. NoSQL Storage like MongoDB.
+4. HTTP API (for usage with microservices).
