@@ -8,6 +8,8 @@ the main idea is to have a storage for roles, permissions and assignments. The s
 
 it could be a InMemory storage like Javascript DataStructure or any custom dataStructure, database, any, a file, a redis instance, etc.
 
+Note that interfaces are all synchronous, but the implementation should be asynchronous.
+
 ## Usage
 
 ### Role Storage
