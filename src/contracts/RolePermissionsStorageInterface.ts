@@ -5,46 +5,49 @@ import { PermissionType, Role } from "../PermissionManager";
  **/
 export interface RolePermissionsStorageInterface {
   /**
-   * Removes all roles.
+   * Removes all permissions from the role.
    */
-  clear(roleName: string): void;
+  clear(roleName: string): Promise<void>;
 
   /**
-   * Returns all roles in the system.
+   * Returns all permissions for the role.
    *
-   * @return Role[] All roles in the system.
+   * @return PermissionType[] All permissions for the role.
    */
-  getAll(roleName: string): PermissionType[];
+  getAll(roleName: string): Promise<PermissionType[]>;
 
   /**
-   * Returns whether role has permission.
+   * Returns whether the role has a permission.
    *
-   * @param name The role name.
+   * @param roleName The role name.
+   * @param PermissionName The permission name.
    *
-   * @return Whether role has permission.
+   * @return Whether the role has the permission.
    */
-  has(roleName: string, PermissionName: string): boolean;
+  has(roleName: string, PermissionName: string): Promise<boolean>;
 
   /**
-   * Returns whether permission is used by any role.
+   * Returns whether the permission is used by any role.
    *
-   * @param name The role name.
+   * @param name The permission name.
    *
-   * @return whether permission is used by any role.
+   * @return Whether the permission is used by any role.
    */
-  hasPermission(PermissionName: string): boolean;
+  hasPermission(PermissionName: string): Promise<boolean>;
 
   /**
-   * Adds the permission to role.
+   * Adds the permission to the role.
    *
-   * @param item The role to add.
+   * @param roleName The role name.
+   * @param permission The permission to add.
    */
-  add(roleName: string, permission: PermissionType): void;
+  add(roleName: string, permission: PermissionType): Promise<void>;
 
   /**
    * Removes a permission from the role.
    *
-   * @param name Name of a role or a permission to remove.
+   * @param roleName The role name.
+   * @param permissionName The permission name to remove.
    */
-  remove(roleName: string, permissionName: string): void;
+  remove(roleName: string, permissionName: string): Promise<void>;
 }

@@ -9,14 +9,14 @@ export interface RoleStorageInterface {
   /**
    * Removes all roles.
    */
-  clear(): void;
+  clear(): Promise<void>;
 
   /**
    * Returns all roles in the system.
    *
    * @return Role[] All roles in the system.
    */
-  getAll(): Role[];
+  getAll(): Promise<Role[]>;
 
   /**
    * Returns the named role.
@@ -25,7 +25,7 @@ export interface RoleStorageInterface {
    *
    * @return The role corresponding to the specified name. `undefined` is returned if no such item.
    */
-  get(name: string): Role | undefined;
+  get(name: string): Promise<Role | undefined>;
 
   /**
    * Returns whether named role exists.
@@ -34,14 +34,14 @@ export interface RoleStorageInterface {
    *
    * @return Whether named role exists.
    */
-  exists(name: string): boolean;
+  exists(name: string): Promise<boolean>;
 
   /**
    * Adds the role to RBAC system.
    *
    * @param item The role to add.
    */
-  add(item: Role): void;
+  add(item: Role): Promise<void>;
 
   // /**
   //  * Updates the specified role in the system.
@@ -49,12 +49,12 @@ export interface RoleStorageInterface {
   //  * @param name The old name of the role.
   //  * @param item Modified role.
   //  */
-  // update(name: string, item: Role): void;
+  // update(name: string, item: Role): Promise<void>;
 
   /**
    * Removes a role from the RBAC system.
    *
    * @param name Name of a role or a permission to remove.
    */
-  remove(name: string): void;
+  remove(name: string): Promise<void>;
 }

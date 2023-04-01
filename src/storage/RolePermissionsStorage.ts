@@ -8,7 +8,7 @@ export class RolePermissionsStorage implements RolePermissionsStorageInterface {
     this.RolePermissions = new Map();
   }
 
-  hasPermission(PermissionName: string): boolean {
+  async hasPermission(PermissionName: string): Promise<boolean> {
     for (const [_roleName, permissions] of this.RolePermissions) {
       if (permissions.has(PermissionName)) {
         return true;
@@ -17,11 +17,11 @@ export class RolePermissionsStorage implements RolePermissionsStorageInterface {
     return false;
   }
 
-  clear(roleName: string): void {
+  async clear(roleName: string): Promise<void> {
     this.RolePermissions.delete(roleName);
   }
 
-  getAll(roleName: string): PermissionType[] {
+  async getAll(roleName: string): Promise<PermissionType[]> {
     const permissions = this.RolePermissions.get(roleName);
     if (permissions) {
       return Array.from(permissions.values());
@@ -30,7 +30,7 @@ export class RolePermissionsStorage implements RolePermissionsStorageInterface {
     return [];
   }
 
-  has(roleName: string, PermissionName: string): boolean {
+  async has(roleName: string, PermissionName: string): Promise<boolean> {
     const permissions = this.RolePermissions.get(roleName);
     if (permissions) {
       return permissions.has(PermissionName);
@@ -38,7 +38,7 @@ export class RolePermissionsStorage implements RolePermissionsStorageInterface {
     return false;
   }
 
-  add(roleName: string, permission: PermissionType): void {
+  async add(roleName: string, permission: PermissionType): Promise<void> {
     const permissions = this.RolePermissions.get(roleName);
     if (permissions) {
       permissions.set(permission.name, permission);
@@ -49,7 +49,7 @@ export class RolePermissionsStorage implements RolePermissionsStorageInterface {
     }
   }
 
-  remove(roleName: string, permissionName: string): void {
+  async remove(roleName: string, permissionName: string): Promise<void> {
     const permissions = this.RolePermissions.get(roleName);
     if (permissions) {
       permissions.delete(permissionName);
@@ -68,27 +68,29 @@ const newPermission = {
   reason: "You are not the author of the post",
 };
 
-const rolePermissionsStorage = new RolePermissionsStorage();
+async function main() {
+  const rolePermissionsStorage = new RolePermissionsStorage();
 
-rolePermissionsStorage.add("admin", newPermission);
+  await rolePermissionsStorage.add("admin", newPermission);
 
-console.log(rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("admin"));
 
-console.log(rolePermissionsStorage.has("admin", "createPost"));
+  console.log(await rolePermissionsStorage.has("admin", "createPost"));
 
-rolePermissionsStorage.add("admin", {
-  name: "UpdatePost",
-  action: "UpdatePost",
-  subject: "Post",
-  conditions: {
-    isPublished: true,
-  },
-  inverted: false,
-  reason: "Post is not published",
-});
+  await rolePermissionsStorage.add("admin", {
+    name: "UpdatePost",
+    action: "UpdatePost",
+    subject: "Post",
+    conditions: {
+      isPublished: true,
+    },
+    inverted: false,
+    reason: "Post is not published",
+  });
 
-console.log(rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("admin"));
 
-rolePermissionsStorage.remove("admin", "createPost");
+  await rolePermissionsStorage.remove("admin", "createPost");
 
-console.log(rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("admin"));
+}

@@ -23,25 +23,30 @@ export interface UserType {
 }
 
 export interface PermissionManagerInterface {
-  createPermission(permission: PermissionType): PermissionType | undefined;
-  getPermissions(): PermissionType[];
-  getPermission(name: string): PermissionType | undefined;
-  removePermission(name: string): void;
+  createPermission(
+    permission: PermissionType
+  ): Promise<PermissionType | undefined>;
+  getPermissions(): Promise<PermissionType[]>;
+  getPermission(name: string): Promise<PermissionType | undefined>;
+  removePermission(name: string): Promise<void>;
 
-  createRole(name: string): Role;
-  getRoles(): Role[];
-  getRole(name: string): Role | undefined;
-  removeRole(name: string): void;
+  createRole(name: string): Promise<Role>;
+  getRoles(): Promise<Role[]>;
+  getRole(name: string): Promise<Role | undefined>;
+  removeRole(name: string): Promise<void>;
 
-  attachPermission(role: Role, permission: PermissionType): void;
-  DetachPermission(role: Role, permission: PermissionType): void;
-  removePermissions(role: Role): void;
-  getAssignment(name: string, user: UserType): AssignmentInterface | undefined;
+  attachPermission(role: Role, permission: PermissionType): Promise<void>;
+  DetachPermission(role: Role, permission: PermissionType): Promise<void>;
+  removePermissions(role: Role): Promise<void>;
+  getAssignment(
+    name: string,
+    user: UserType
+  ): Promise<AssignmentInterface | undefined>;
 
-  assign(role: Role, user: UserType): void;
-  revoke(role: Role, user: UserType): void;
-  revokeAll(user: UserType): void;
+  assign(role: Role, user: UserType): Promise<void>;
+  revoke(role: Role, user: UserType): Promise<void>;
+  revokeAll(user: UserType): Promise<void>;
 
-  permissionExists(name: string): boolean;
-  roleExists(name: string): boolean;
+  permissionExists(name: string): Promise<boolean>;
+  roleExists(name: string): Promise<boolean>;
 }

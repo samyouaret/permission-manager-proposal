@@ -9,20 +9,30 @@ export class AssignmentStorage implements AssignmentsStorageInterface {
     this.assignments = new Map();
   }
 
-  getAll(): AssignmentInterface[] {
+  async hasPermission(
+    userId: string,
+    permissionName: string
+  ): Promise<boolean> {
     throw new Error("Method not implemented.");
   }
 
-  getByUserId(userId: string): AssignmentInterface[] {
+  async getAll(): Promise<AssignmentInterface[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  async getByUserId(userId: string): Promise<AssignmentInterface[]> {
     return Array.from(this.assignments.get(userId)?.values() ?? []);
   }
 
-  get(roleName: string, userId: string): AssignmentInterface | undefined {
+  async get(
+    roleName: string,
+    userId: string
+  ): Promise<AssignmentInterface | undefined> {
     // get assignments for role
     return this.assignments.get(roleName)?.get(userId);
   }
 
-  add(roleName: string, userId: string): void {
+  async add(roleName: string, userId: string): Promise<void> {
     let userRoles = this.assignments.get(userId);
     let roleUsers = this.assignments.get(roleName);
     if (roleUsers === undefined) {
@@ -41,11 +51,11 @@ export class AssignmentStorage implements AssignmentsStorageInterface {
     roleUsers.set(userId, assignment);
   }
 
-  hasRole(name: string): boolean {
+  async hasRole(name: string): Promise<boolean> {
     return this.assignments.has(name);
   }
 
-  remove(roleName: string, userId: string): void {
+  async remove(roleName: string, userId: string): Promise<void> {
     let userRoles = this.assignments.get(userId);
     let roleUsers = this.assignments.get(roleName);
     // remove assignment from roleUsers
@@ -54,7 +64,7 @@ export class AssignmentStorage implements AssignmentsStorageInterface {
     userRoles?.delete(roleName);
   }
 
-  removeByUserId(userId: string): void {
+  async removeByUserId(userId: string): Promise<void> {
     // get all roles for user
     const userRoles = this.assignments.get(userId);
     // get all roleNames for user
@@ -68,7 +78,7 @@ export class AssignmentStorage implements AssignmentsStorageInterface {
     this.assignments.delete(userId);
   }
 
-  removeByRoleName(roleName: string): void {
+  async removeByRoleName(roleName: string): Promise<void> {
     // get all roles for user
     const roleUsers = this.assignments.get(roleName);
     // get all roleNames for user
@@ -83,25 +93,27 @@ export class AssignmentStorage implements AssignmentsStorageInterface {
     this.assignments.delete(roleName);
   }
 
-  clear(): void {
+  async clear(): Promise<void> {
     this.assignments.clear();
   }
 }
 
-const assignmentStorage = new AssignmentStorage();
+async function main() {
+  const assignmentStorage = new AssignmentStorage();
 
-// add new Assignment
+  // add new Assignment
 
-assignmentStorage.add("admin", "1");
-assignmentStorage.add("Author", "1");
-// get all assignments for user
+  await assignmentStorage.add("admin", "1");
+  await assignmentStorage.add("Author", "1");
+  // get all assignments for user
 
-let assignments = assignmentStorage.getByUserId("1");
+  let assignments = await assignmentStorage.getByUserId("1");
 
-console.log(assignments);
+  console.log(assignments);
 
-let adminAssignment = assignmentStorage.get("admin", "1");
-let authorAssignment = assignmentStorage.get("Author", "1");
+  let adminAssignment = await assignmentStorage.get("admin", "1");
+  let authorAssignment = await assignmentStorage.get("Author", "1");
 
-console.log(adminAssignment);
-console.log(authorAssignment);
+  console.log(adminAssignment);
+  console.log(authorAssignment);
+}

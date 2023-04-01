@@ -3,7 +3,8 @@ import { PermissionStorage } from "./storage/PermissionStorage";
 import { RolePermissionsStorage } from "./storage/RolePermissionsStorage";
 import { RoleStorage } from "./storage/RoleStorage";
 
-// create new RoleStorage
+async function main() {
+  // create new RoleStorage
 const roleStorage = new RoleStorage();
 // create new PermissionStorage
 const permissionStorage = new PermissionStorage();
@@ -28,17 +29,19 @@ const newPermission = {
   reason: "Post is not published",
 };
 
-const permission = permissionStorage.add(newPermission);
+const permission = await permissionStorage.add(newPermission);
 
 // create new RolePermission
-rolePermissionStorage.add(newRole.name, permission);
+await rolePermissionStorage.add(newRole.name, permission);
 
 // create new Assignment
 
-assignmentStorage.add(newRole.name, "user1");
+await assignmentStorage.add(newRole.name, "user1");
 
 // check if Assignment has Role
 
-console.log(assignmentStorage.hasRole("admin"));
+console.log(await assignmentStorage.hasRole("admin"));
 
-console.log(assignmentStorage.get("admin", "user1"));
+console.log(await assignmentStorage.get("admin", "user1"));
+
+}

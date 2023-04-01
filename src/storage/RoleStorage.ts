@@ -6,30 +6,30 @@ export class RoleStorage implements RoleStorageInterface {
   constructor() {
     this.roles = new Map();
   }
-  clear(): void {
+  async clear(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  exists(name: string): boolean {
+  async exists(name: string): Promise<boolean> {
     return this.roles.has(name);
   }
 
-  getAll(): Role[] {
+  async getAll(): Promise<Role[]> {
     return Array.from(this.roles.values());
   }
 
-  get(name: string): Role | undefined {
+  async get(name: string): Promise<Role | undefined> {
     return this.roles.get(name);
   }
 
-  add(role: Role): void {
-    if (this.exists(role.name)) {
+  async add(role: Role): Promise<void> {
+    if (await this.exists(role.name)) {
       throw new Error(`Role with name ${role.name} already exists`);
     }
     this.roles.set(role.name, role);
   }
 
-  remove(name: string): void {
-    if (this.exists(name) === false) {
+  async remove(name: string): Promise<void> {
+    if (await this.exists(name) === false) {
       throw new Error("Role does not exist");
     }
     this.roles.delete(name);
@@ -38,19 +38,22 @@ export class RoleStorage implements RoleStorageInterface {
 
 const roleStorage = new RoleStorage();
 
-const newRole = {
+async function main() {
+  const newRole = {
   name: "admin",
   description: "Admin role",
 };
 
-roleStorage.add(newRole);
+await roleStorage.add(newRole);
 
-console.log(roleStorage.get("admin"));
+console.log(await roleStorage.get("admin"));
 
-console.log(roleStorage.getAll());
+console.log(await roleStorage.getAll());
 
-console.log(roleStorage.exists("admin"));
+console.log(await roleStorage.exists("admin"));
 
-roleStorage.remove("admin");
+await roleStorage.remove("admin");
 
-console.log(roleStorage.exists("admin"));
+console.log(await roleStorage.exists("admin"));
+
+}
