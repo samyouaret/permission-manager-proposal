@@ -110,11 +110,9 @@ async function main() {
   });
   await connect(client);
   const assignmentStorage = new SQLAssignmentStorage(client);
-
-  // add new Assignment
-
-  await assignmentStorage.add("admin", "1");
-  await assignmentStorage.add("Author", "1");
+  assignmentStorage.clear();
+  // await assignmentStorage.add("admin", "1");
+  await assignmentStorage.add("author", "1");
   // get all assignments for user
 
   let assignments = await assignmentStorage.getByUserId("1");
@@ -124,6 +122,23 @@ async function main() {
   let adminAssignment = await assignmentStorage.get("admin", "1");
   let authorAssignment = await assignmentStorage.get("Author", "1");
 
+  console.log("has author role", await assignmentStorage.hasRole("author"));
+
   console.log(adminAssignment);
   console.log(authorAssignment);
+  // remove assignment
+
+  await assignmentStorage.remove("admin", "1");
+  await assignmentStorage.remove("author", "1");
+
+  // check if user has role
+
+  let hasAdminRole = await assignmentStorage.hasRole("admin");
+  let hasAuthorRole = await assignmentStorage.hasRole("author");
+
+  console.log(hasAdminRole);
+  console.log(hasAuthorRole);
+  client.end();
 }
+
+main();
