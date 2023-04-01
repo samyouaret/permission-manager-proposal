@@ -320,7 +320,7 @@ main();
 
 ```
 
-### An example with PermissionManager and CASL library
+### An example with Permissions and CASL library
 
 ```js
 import { Ability, AbilityBuilder } from "@casl/ability";
