@@ -4,7 +4,7 @@ import { Client } from "pg";
 export class SQLRoleStorage implements RoleStorageInterface {
   constructor(private client: Client) {}
   async clear(): Promise<void> {
-    throw new Error("Method not implemented.");
+    await this.client.query("DELETE FROM roles");
   }
 
   async exists(name: string): Promise<boolean> {
@@ -30,10 +30,7 @@ export class SQLRoleStorage implements RoleStorageInterface {
     if (await this.exists(role.name)) {
       throw new Error(`Role with name ${role.name} already exists`);
     }
-    await this.client.query(
-      "INSERT INTO roles(name, description) VALUES ($1)",
-      [role.name]
-    );
+    await this.client.query("INSERT INTO roles(name) VALUES ($1)", [role.name]);
   }
 
   async remove(name: string): Promise<void> {
@@ -64,21 +61,29 @@ async function main() {
   await connect(client);
   const roleStorage = new SQLRoleStorage(client);
 
-  const newRole = {
+  const admin = {
     name: "admin",
     description: "Admin role",
   };
-  await roleStorage.add(newRole);
+  const author = {
+    name: "author",
+    description: "Author role",
+  };
+  await roleStorage.clear();
+  await roleStorage.add(admin);
+  await roleStorage.add(author);
 
-  console.log(roleStorage.get("admin"));
+  console.log(await roleStorage.get("admin"));
 
-  console.log(roleStorage.getAll());
+  console.log(await roleStorage.getAll());
 
-  console.log(roleStorage.exists("admin"));
+  console.log(await roleStorage.exists("admin"));
 
-  roleStorage.remove("admin");
+  await roleStorage.remove("admin");
 
-  console.log(roleStorage.exists("admin"));
+  console.log(await roleStorage.exists("admin"));
+
+  await client.end();
 }
 
 main();
