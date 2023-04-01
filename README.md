@@ -8,31 +8,50 @@ the main idea is to have a storage for roles, permissions and assignments. The s
 
 it could be a InMemory storage like Javascript DataStructure or any custom dataStructure, database, any, a file, a redis instance, etc.
 
-Note that interfaces are all synchronous, but the implementation should be asynchronous.
-
 ## Usage
 
 ### Role Storage
 
 ```js
-const roleStorage = new RoleStorage();
+async function connect(client: Client) {
+  await client.connect();
 
-const newRole = {
-  name: "admin",
-  description: "Admin role",
-};
+  const res = await client.query("SELECT $1::text as message", [
+    "Hello world!",
+  ]);
+  console.log(res.rows[0].message); // Hello world!
+  // await client.end();
+}
 
-roleStorage.add(newRole);
+async function main() {
+  const roleStorage = new SQLRoleStorage(client);
 
-console.log(roleStorage.get("admin"));
+  const admin = {
+    name: "admin",
+    description: "Admin role",
+  };
+  const author = {
+    name: "author",
+    description: "Author role",
+  };
+  await roleStorage.clear();
+  await roleStorage.add(admin);
+  await roleStorage.add(author);
 
-console.log(roleStorage.getAll());
+  console.log(await roleStorage.get("admin"));
 
-console.log(roleStorage.exists("admin"));
+  console.log(await roleStorage.getAll());
 
-roleStorage.remove("admin");
+  console.log(await roleStorage.exists("admin"));
 
-console.log(roleStorage.exists("admin"));
+  await roleStorage.remove("admin");
+
+  console.log(await roleStorage.exists("admin"));
+
+  await client.end();
+}
+
+main();
 
 ```
 
@@ -40,27 +59,43 @@ console.log(roleStorage.exists("admin"));
 
 ```js
 
-const permissionStorage = new PermissionStorage();
+ const permissionStorage = new SQLPermissionStorage(client);
 
-const newPermission = {
-  name: "createPost",
-  action: "createPost",
-  subject: "User",
-  conditions: {
-    isAuthor: true,
-  },
-  inverted: false,
-  reason: "You are not the author of the post",
-};
+  const createPost = {
+    name: "createPost",
+    action: "createPost",
+    subject: "User",
+    conditions: {
+      isAuthor: true,
+    },
+    inverted: false,
+    reason: "You are not the author of the post",
+  };
 
-permissionStorage.add(newPermission);
+  const updatePost = {
+    name: "updatePost",
+    action: "updatePost",
+    subject: "User",
+    conditions: {
+      isAuthor: true,
+    },
+    inverted: false,
+    reason: "You are not the author of the post",
+  };
 
-console.log(permissionStorage.getAll());
-console.log(permissionStorage.exists("createPost"));
-permissionStorage.remove("createPost");
-console.log(permissionStorage.exists("createPost"));
-permissionStorage.clear();
-console.log(permissionStorage.getAll());
+  await permissionStorage.add(createPost);
+  await permissionStorage.add(updatePost);
+
+  console.log(await permissionStorage.getAll());
+  console.log(await permissionStorage.exists("createPost"));
+  await permissionStorage.remove("createPost");
+  console.log(await permissionStorage.exists("createPost"));
+  // await permissionStorage.clear();
+  console.log(await permissionStorage.getAll());
+
+  await client.end();
+}
+
 
 ```
 
@@ -68,30 +103,49 @@ console.log(permissionStorage.getAll());
 
 ```js
 
-const rolePermissionsStorage = new RolePermissionsStorage();
+async function main() {
+  const rolePermissionsStorage = new SQLRolePermissionsStorage(client);
+  rolePermissionsStorage.clear("author");
+  const newPermission = {
+    name: "createPost",
+    action: "createPost",
+    subject: "User",
+    conditions: {
+      isAuthor: true,
+    },
+    inverted: false,
+    reason: "You are not the author of the post",
+  };
 
-rolePermissionsStorage.add("admin", newPermission);
+  await rolePermissionsStorage.add("author", newPermission);
 
-console.log(rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("author"));
 
-console.log(rolePermissionsStorage.has("admin", "createPost"));
+  console.log(await rolePermissionsStorage.has("author", "createPost"));
 
-rolePermissionsStorage.add("admin", {
-  name: "UpdatePost",
-  action: "UpdatePost",
-  subject: "Post",
-  conditions: {
-    isPublished: true,
-  },
-  inverted: false,
-  reason: "Post is not published",
-});
+  await rolePermissionsStorage.add("author", {
+    name: "updatePost",
+    action: "updatePost",
+    subject: "Post",
+    conditions: {
+      isPublished: true,
+    },
+    inverted: false,
+    reason: "Post is not published",
+  });
 
-console.log(rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("author"));
 
-rolePermissionsStorage.remove("admin", "createPost");
+  await rolePermissionsStorage.remove("author", "createPost");
 
-console.log(rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("author"));
+
+  await client.end();
+}
+
+main();
+
+
 ```
 
 ### AssignmentStorage
@@ -131,12 +185,54 @@ To validate Usability of this permission management system, we need to implement
 ## Full example
 
 ```js
+async function main() {
+  await connect(client);
+  const assignmentStorage = new SQLAssignmentStorage(client);
+  assignmentStorage.clear();
+  // await assignmentStorage.add("admin", "1");
+  await assignmentStorage.add("author", "1");
+  // get all assignments for user
+
+  let assignments = await assignmentStorage.getByUserId("1");
+
+  console.log(assignments);
+
+  let adminAssignment = await assignmentStorage.get("admin", "1");
+  let authorAssignment = await assignmentStorage.get("Author", "1");
+
+  console.log("has author role", await assignmentStorage.hasRole("author"));
+
+  console.log(adminAssignment);
+  console.log(authorAssignment);
+  // remove assignment
+
+  await assignmentStorage.remove("admin", "1");
+  await assignmentStorage.remove("author", "1");
+
+  // check if user has role
+
+  let hasAdminRole = await assignmentStorage.hasRole("admin");
+  let hasAuthorRole = await assignmentStorage.hasRole("author");
+
+  console.log(hasAdminRole);
+  console.log(hasAuthorRole);
+  client.end();
+}
+
+main();
+```
+
+### An example with PermissionManager and CASL library
+
+```js
+// we use PermissionManagerv2 for this example
 import { AssignmentStorage } from "./storage/AssignmentStorage";
 import { PermissionStorage } from "./storage/PermissionStorage";
 import { RolePermissionsStorage } from "./storage/RolePermissionsStorage";
 import { RoleStorage } from "./storage/RoleStorage";
 
-// create new RoleStorage
+async function main() {
+  // create new RoleStorage
 const roleStorage = new RoleStorage();
 // create new PermissionStorage
 const permissionStorage = new PermissionStorage();
@@ -161,75 +257,20 @@ const newPermission = {
   reason: "Post is not published",
 };
 
-const permission = permissionStorage.add(newPermission);
+const permission = await permissionStorage.add(newPermission);
 
 // create new RolePermission
-rolePermissionStorage.add(newRole.name, permission);
+await rolePermissionStorage.add(newRole.name, permission);
 
 // create new Assignment
 
-assignmentStorage.add(newRole.name, "user1");
+await assignmentStorage.add(newRole.name, "user1");
 
 // check if Assignment has Role
 
-console.log(assignmentStorage.hasRole("admin"));
+console.log(await assignmentStorage.hasRole("admin"));
 
-console.log(assignmentStorage.get("admin", "user1"));
-```
+console.log(await assignmentStorage.get("admin", "user1"));
 
-### An example with PermissionManager and CASL library
-
-```js
-// we use PermissionManagerv2 for this example
-const permissionManager = new PermissionManager(
-  new RoleStorage(),
-  new PermissionStorage(),
-  new RolePermissionsStorage(),
-  new AssignmentStorage()
-);
-
-const newPermission = permissionManager.createPermission({
-  name: "createPost",
-  action: "createPost",
-  subject: "User",
-  conditions: {
-    isAuthor: true,
-  },
-  inverted: false,
-  reason: "You are not the author of the post",
-});
-
-const newRole = permissionManager.createRole("author");
-permissionManager.attachPermission(newRole, newPermission);
-
-class User implements UserType {
-  constructor(public id: number, public isAuthor: boolean) {}
-}
-
-const user = new User(1, true);
-permissionManager.assign(newRole, user);
-
-const assignment = permissionManager.getAssignment("author", user);
-
-console.log(assignment);
-
-const permissions = permissionManager.getPermissions();
-
-console.log(permissions);
-const ability = defineAbilityFor(user, permissions);
-// test ability of user to CreatePost
-console.log(ability.can("createPost", user));
-
-function defineAbilityFor(user: UserType, permissions: PermissionType[]) {
-  const { can, cannot, build } = new AbilityBuilder(Ability);
-  // Add permissions to the builder
-  permissions.forEach((permission) => {
-    if (permission.inverted) {
-      cannot(permission.name, permission.subject, permission.conditions);
-    } else {
-      can(permission.name, permission.subject, permission.conditions);
-    }
-  });
-  return build();
 }
 ```
