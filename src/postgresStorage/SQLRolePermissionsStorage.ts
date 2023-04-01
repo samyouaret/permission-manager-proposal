@@ -7,14 +7,6 @@ export class SQLRolePermissionsStorage
 {
   constructor(private client: Client) {}
 
-  async hasPermission(PermissionName: string): Promise<boolean> {
-    const res = await this.client.query(
-      "SELECT * FROM role_permissions WHERE permission_name = $1",
-      [PermissionName]
-    );
-    return res.rowCount > 0;
-  }
-
   async clear(roleName: string): Promise<void> {
     await this.client.query(
       "DELETE FROM role_permissions WHERE role_name = $1",
@@ -39,9 +31,6 @@ export class SQLRolePermissionsStorage
   }
 
   async add(roleName: string, permission: PermissionType): Promise<void> {
-    if ((await this.hasPermission(permission.name)) === false) {
-      throw new Error("Permission does not exist");
-    }
     if (await this.has(roleName, permission.name)) {
       throw new Error(
         `Role ${roleName} already has permission ${permission.name}`
@@ -51,6 +40,14 @@ export class SQLRolePermissionsStorage
       "INSERT INTO role_permissions(role_name, permission_name) VALUES ($1, $2)",
       [roleName, permission.name]
     );
+  }
+
+  async hasPermission(PermissionName: string): Promise<boolean> {
+    const res = await this.client.query(
+      "SELECT * FROM role_permissions WHERE permission_name = $1",
+      [PermissionName]
+    );
+    return res.rowCount > 0;
   }
 
   async remove(roleName: string, permissionName: string): Promise<void> {
@@ -81,6 +78,7 @@ async function main() {
   await connect(client);
 
   const rolePermissionsStorage = new SQLRolePermissionsStorage(client);
+  rolePermissionsStorage.clear("author");
   const newPermission = {
     name: "createPost",
     action: "createPost",
@@ -92,15 +90,15 @@ async function main() {
     reason: "You are not the author of the post",
   };
 
-  await rolePermissionsStorage.add("admin", newPermission);
+  await rolePermissionsStorage.add("author", newPermission);
 
-  console.log(await rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("author"));
 
-  console.log(await rolePermissionsStorage.has("admin", "createPost"));
+  console.log(await rolePermissionsStorage.has("author", "createPost"));
 
-  await rolePermissionsStorage.add("admin", {
-    name: "UpdatePost",
-    action: "UpdatePost",
+  await rolePermissionsStorage.add("author", {
+    name: "updatePost",
+    action: "updatePost",
     subject: "Post",
     conditions: {
       isPublished: true,
@@ -109,9 +107,13 @@ async function main() {
     reason: "Post is not published",
   });
 
-  console.log(await rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("author"));
 
-  await rolePermissionsStorage.remove("admin", "createPost");
+  await rolePermissionsStorage.remove("author", "createPost");
 
-  console.log(await rolePermissionsStorage.getAll("admin"));
+  console.log(await rolePermissionsStorage.getAll("author"));
+
+  await client.end();
 }
+
+main();
