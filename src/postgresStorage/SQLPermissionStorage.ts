@@ -93,7 +93,7 @@ async function main() {
   await connect(client);
   const permissionStorage = new SQLPermissionStorage(client);
 
-  const newPermission = {
+  const createPost = {
     name: "createPost",
     action: "createPost",
     subject: "User",
@@ -104,12 +104,28 @@ async function main() {
     reason: "You are not the author of the post",
   };
 
-  await permissionStorage.add(newPermission);
+  const updatePost = {
+    name: "updatePost",
+    action: "updatePost",
+    subject: "User",
+    conditions: {
+      isAuthor: true,
+    },
+    inverted: false,
+    reason: "You are not the author of the post",
+  };
+
+  await permissionStorage.add(createPost);
+  await permissionStorage.add(updatePost);
 
   console.log(await permissionStorage.getAll());
   console.log(await permissionStorage.exists("createPost"));
   await permissionStorage.remove("createPost");
   console.log(await permissionStorage.exists("createPost"));
-  await permissionStorage.clear();
+  // await permissionStorage.clear();
   console.log(await permissionStorage.getAll());
+
+  await client.end();
 }
+
+main();
