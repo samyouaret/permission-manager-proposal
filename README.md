@@ -177,7 +177,9 @@ console.log(authorAssignment);
 To validate Usability of this permission management system, we need to implement some of these storages types:
 
 1. [x] InMemoryStorage(in Javascript).
-2. [ ] SQl Storage like Postgres.
+2. [x] SQl Storage like Postgres.
+   1. [ ] getting user permission should be easy.
+   2. [ ] check if user has permission should be fast.
 3. [ ] NoSQL Storage like MongoDB.
 4. [ ] HTTP API (for usage with microservices).
 
