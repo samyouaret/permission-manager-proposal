@@ -15,7 +15,7 @@ const assignmentStorage = new AssignmentStorage();
 
 // create new Role
 const newRole = { name: "admin", description: "Administrator" };
-const role = roleStorage.add(newRole);
+await roleStorage.add(newRole);
 
 // create new Permission
 const newPermission = {
@@ -45,3 +45,5 @@ console.log(await assignmentStorage.hasRole("admin"));
 console.log(await assignmentStorage.get("admin", "user1"));
 
 }
+
+main();

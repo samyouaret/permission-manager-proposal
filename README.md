@@ -182,44 +182,140 @@ To validate Usability of this permission management system, we need to implement
 4. [ ] HTTP API (for usage with microservices).
 
 
-## Full example
+## An example with InMemoryStorage
 
 ```js
+import { AssignmentStorage } from "./storage/AssignmentStorage";
+import { PermissionStorage } from "./storage/PermissionStorage";
+import { RolePermissionsStorage } from "./storage/RolePermissionsStorage";
+import { RoleStorage } from "./storage/RoleStorage";
+
 async function main() {
-  await connect(client);
-  const assignmentStorage = new SQLAssignmentStorage(client);
-  assignmentStorage.clear();
-  // await assignmentStorage.add("admin", "1");
-  await assignmentStorage.add("author", "1");
-  // get all assignments for user
+  // create new RoleStorage
+const roleStorage = new RoleStorage();
+// create new PermissionStorage
+const permissionStorage = new PermissionStorage();
+// create new RolePermissionStorage
+const rolePermissionStorage = new RolePermissionsStorage();
+// create new AssignmentStorage
+const assignmentStorage = new AssignmentStorage();
 
-  let assignments = await assignmentStorage.getByUserId("1");
+// create new Role
+const newRole = { name: "admin", description: "Administrator" };
+await roleStorage.add(newRole);
 
-  console.log(assignments);
+// create new Permission
+const newPermission = {
+  name: "UpdatePost",
+  action: "UpdatePost",
+  subject: "Post",
+  conditions: {
+    isPublished: true,
+  },
+  inverted: false,
+  reason: "Post is not published",
+};
 
-  let adminAssignment = await assignmentStorage.get("admin", "1");
-  let authorAssignment = await assignmentStorage.get("Author", "1");
+const permission = await permissionStorage.add(newPermission);
 
-  console.log("has author role", await assignmentStorage.hasRole("author"));
+// create new RolePermission
+await rolePermissionStorage.add(newRole.name, permission);
 
-  console.log(adminAssignment);
-  console.log(authorAssignment);
-  // remove assignment
+// create new Assignment
 
-  await assignmentStorage.remove("admin", "1");
-  await assignmentStorage.remove("author", "1");
+await assignmentStorage.add(newRole.name, "user1");
 
-  // check if user has role
+// check if Assignment has Role
 
-  let hasAdminRole = await assignmentStorage.hasRole("admin");
-  let hasAuthorRole = await assignmentStorage.hasRole("author");
+console.log(await assignmentStorage.hasRole("admin"));
 
-  console.log(hasAdminRole);
-  console.log(hasAuthorRole);
-  client.end();
+console.log(await assignmentStorage.get("admin", "user1"));
+
 }
 
 main();
+```
+
+### Example with PermissionManager and SQLStorage
+
+
+```js
+import { Client } from "pg";
+import { SQLAssignmentStorage } from "./postgresStorage/SQLAssignmentStorage";
+import { SQLPermissionStorage } from "./postgresStorage/SQLPermissionStorage";
+import { SQLRolePermissionsStorage } from "./postgresStorage/SQLRolePermissionsStorage";
+import { SQLRoleStorage } from "./postgresStorage/SQLRoleStorage";
+
+async function connect(client: Client) {
+  await client.connect();
+
+  const res = await client.query("SELECT $1::text as message", [
+    "Hello world!",
+  ]);
+  console.log(res.rows[0].message); // Hello world!
+  // await client.end();
+}
+
+async function main() {
+  const client = new Client({
+    host: "localhost",
+    database: "casl_db",
+    user: "postgres_user",
+    password: "postgres_pass",
+  });
+  await connect(client);
+  // create new RoleStorage
+  const roleStorage = new SQLRoleStorage(client);
+  // create new PermissionStorage
+  const permissionStorage = new SQLPermissionStorage(client);
+  // create new RolePermissionStorage
+  const rolePermissionStorage = new SQLRolePermissionsStorage(client);
+  // create new AssignmentStorage
+  const assignmentStorage = new SQLAssignmentStorage(client);
+
+  // clear all storages
+  await rolePermissionStorage.clear("admin");
+  await rolePermissionStorage.clear("author");
+  await assignmentStorage.clear();
+  await roleStorage.clear();
+  await permissionStorage.clear();
+  // create new Role
+  const newRole = { name: "admin", description: "Administrator" };
+  await roleStorage.add(newRole);
+
+  // create new Permission
+  const newPermission = {
+    name: "updatePost",
+    action: "updatePost",
+    subject: "Post",
+    conditions: {
+      isPublished: true,
+    },
+    inverted: false,
+    reason: "Post is not published",
+  };
+
+  const permission = await permissionStorage.add(newPermission);
+
+  // create new RolePermission
+  await rolePermissionStorage.add(newRole.name, permission);
+
+  // create new Assignment
+
+  await assignmentStorage.add(newRole.name, "user1");
+
+  // check if Assignment has Role
+
+  console.log(await assignmentStorage.hasRole("admin"));
+
+  console.log(await assignmentStorage.get("admin", "user1"));
+
+  
+  await client.end();
+}
+
+main();
+
 ```
 
 ### An example with PermissionManager and CASL library
