@@ -323,52 +323,62 @@ main();
 ### An example with PermissionManager and CASL library
 
 ```js
-// we use PermissionManagerv2 for this example
-import { AssignmentStorage } from "./storage/AssignmentStorage";
+import { Ability, AbilityBuilder } from "@casl/ability";
+import {
+  PermissionType,
+  UserType,
+} from "./contracts/PermissionManagerInterface";
 import { PermissionStorage } from "./storage/PermissionStorage";
-import { RolePermissionsStorage } from "./storage/RolePermissionsStorage";
-import { RoleStorage } from "./storage/RoleStorage";
+
+function defineAbilityFor(user: UserType, permissions: PermissionType[]) {
+  const { can, cannot, build } = new AbilityBuilder(Ability);
+  // fetch permissions from the database
+  // Add permissions to the builder
+  permissions.forEach((permission) => {
+    if (permission.inverted) {
+      cannot(permission.action, permission.subject, permission.conditions);
+    } else {
+      can(permission.action, permission.subject, permission.conditions);
+    }
+  });
+  return build();
+}
+
+class User {
+  id: number;
+  isAuthor: boolean;
+  name: string;
+  constructor(id: number, name: string, isAuthor: boolean) {
+    this.id = id;
+    this.isAuthor = isAuthor;
+    this.name = name;
+  }
+}
 
 async function main() {
-  // create new RoleStorage
-const roleStorage = new RoleStorage();
-// create new PermissionStorage
-const permissionStorage = new PermissionStorage();
-// create new RolePermissionStorage
-const rolePermissionStorage = new RolePermissionsStorage();
-// create new AssignmentStorage
-const assignmentStorage = new AssignmentStorage();
+  // create new PermissionStorage
+  const permissionStorage = new PermissionStorage();
+  // create new Permission
+  const newPermission = {
+    name: "createUser",
+    action: "createUser",
+    subject: "User",
+    conditions: {
+      isAuthor: true,
+    },
+    inverted: false,
+    reason: "Post is not published",
+  };
 
-// create new Role
-const newRole = { name: "admin", description: "Administrator" };
-const role = roleStorage.add(newRole);
-
-// create new Permission
-const newPermission = {
-  name: "UpdatePost",
-  action: "UpdatePost",
-  subject: "Post",
-  conditions: {
-    isPublished: true,
-  },
-  inverted: false,
-  reason: "Post is not published",
-};
-
-const permission = await permissionStorage.add(newPermission);
-
-// create new RolePermission
-await rolePermissionStorage.add(newRole.name, permission);
-
-// create new Assignment
-
-await assignmentStorage.add(newRole.name, "user1");
-
-// check if Assignment has Role
-
-console.log(await assignmentStorage.hasRole("admin"));
-
-console.log(await assignmentStorage.get("admin", "user1"));
-
+  await permissionStorage.add(newPermission);
+  // get all permissions
+  const permissions = await permissionStorage.getAll();
+  const user = new User(122, "John", true);
+  let build = await defineAbilityFor(user, permissions);
+  // Subject must be the same as the class
+  console.log(build.can("createUser", user)); // true
+  console.log(build.can("deleteUser", user)); // false
 }
+
+main();
 ```
