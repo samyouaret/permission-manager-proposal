@@ -13,14 +13,13 @@ export class SQLAssignmentStorage implements AssignmentsStorageInterface {
     const res = await this.client.query(
       `SELECT COUNT(*) > 0 AS has_permission
 FROM assignments
-JOIN role_permissions rp  ON role_permissions.role_name = roles.name
-JOIN Permissions p ON rp.permission_name = p.permission_name
-WHERE u.user_id = $1
-  AND p.permission_name = $2;
+JOIN role_permissions rp  ON rp.role_name = assignments.role_name
+WHERE assignments.user_id = $1
+  AND rp.permission_name =$2;
 `,
       [userId, permissionName]
     );
-    return res.rowCount > 0;
+    return res.rows[0].has_permission;
   }
 
   async getAll(): Promise<AssignmentInterface[]> {

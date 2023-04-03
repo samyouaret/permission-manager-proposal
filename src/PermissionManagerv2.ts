@@ -14,7 +14,7 @@ import { PermissionStorage } from "./storage/PermissionStorage";
 import { RolePermissionsStorage } from "./storage/RolePermissionsStorage";
 import { RoleStorage } from "./storage/RoleStorage";
 
-class PermissionManagerv2 implements PermissionManagerInterface {
+export class PermissionManagerv2 implements PermissionManagerInterface {
   constructor(
     private roleStorage: RoleStorageInterface,
     private permissionStorage: PermissionStorageInterface,
@@ -99,7 +99,10 @@ class PermissionManagerv2 implements PermissionManagerInterface {
       throw new Error("Permission does not exist");
     }
     // check if rolePermissionStorage already has the permission
-    if (await this.rolePermissionStorage.has(role.name, permission.name) === false) {
+    if (
+      (await this.rolePermissionStorage.has(role.name, permission.name)) ===
+      false
+    ) {
       throw new Error("Permission is not attached to the role");
     }
 
@@ -115,7 +118,7 @@ class PermissionManagerv2 implements PermissionManagerInterface {
       throw new Error("Role does not exist");
     }
 
-    this.assignStorage.add(user.id, role.name);
+    return this.assignStorage.add(role.name, user.id);
   }
 
   async revoke(role: Role, user: UserType): Promise<void> {
@@ -146,16 +149,18 @@ class PermissionManagerv2 implements PermissionManagerInterface {
   }
 
   async hasPermission(userId: string, permissionName: string) {
-    const assignments = await this.assignStorage.getByUserId(userId);
-    const roles = assignments.map((assignment) => assignment.getRoleName());
 
-    for (const role of roles) {
-      if (await this.rolePermissionStorage.has(role, permissionName)) {
-        return true;
-      }
-    }
+    return this.assignStorage.hasPermission(userId, permissionName);
+    // const assignments = await this.assignStorage.getByUserId(userId);
+    // const roles = assignments.map((assignment) => assignment.getRoleName());
 
-    return false;
+    // for (const role of roles) {
+    //   if (await this.rolePermissionStorage.has(role, permissionName)) {
+    //     return true;
+    //   }
+    // }
+
+    // return false;
   }
 }
 
