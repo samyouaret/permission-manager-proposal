@@ -183,6 +183,7 @@ To validate Usability of this permission management system, we need to implement
 3. [ ] NoSQL Storage like MongoDB.
 4. [ ] HTTP API (for usage with microservices).
 
+Secondly We need to test integration of this servers like express.js and nestjs, for example with `express.js` middleware that uses this permission manager.
 
 ## An example with InMemoryStorage
 
@@ -239,7 +240,6 @@ main();
 ```
 
 ### Example with PermissionManager and SQLStorage
-
 
 ```js
 import { Client } from "pg";
