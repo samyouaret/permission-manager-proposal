@@ -18,13 +18,25 @@ const hasPermission = (
     // check if user has permission
     // usually you would get the user id from the request
     if (await permissionManager.hasPermission("1", permission)) {
-      next();
-    } else {
-      res.status(403).send("Forbidden");
+      return next();
     }
+    res.status(403).send("Forbidden");
   };
 };
+// create a middleware to check if user has role to access the route
+const hasRole = (permissionManager: PermissionManagerv2, role: string) => {
+  return async (req: any, res: any, next: any) => {
+    // check if user has role
+    // usually you would get the user id from the request
+    if (
+      (await permissionManager.getAssignment(role, { id: "1" })) !== undefined
+    ) {
+      return next();
+    }
 
+    res.status(403).send("Forbidden");
+  };
+};
 async function main() {
   const permissionManager = await init();
   // create a route that requires a permission
@@ -38,6 +50,13 @@ async function main() {
       ]);
     }
   );
+
+  app.get("/edit-posts", hasRole(permissionManager, "author"), (req, res) => {
+    res.json([
+      { id: 1, title: "Post 1" },
+      { id: 2, title: "Post 2" },
+    ]);
+  });
   app.listen(3000, () => {
     console.log("Listening at http://localhost:3000");
   });
