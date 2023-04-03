@@ -315,6 +315,8 @@ async function main() {
 
   console.log(permissions); // [ { name: 'createPost', action: 'createPost', subject: 'User', conditions: { isAuthor: true }, inverted: false, reason: 'You are not the author of the post' } ]
  
+  // check if user has permission to createPost
+  console.log(await permissionManager.hasPermission("1", "createPost")); // true
   
   await client.end();
 }
@@ -397,13 +399,10 @@ async function main() {
   const user = new User(1, true);
   await permissionManager.assign(newRole, user);
 
-  const assignment = await permissionManager.getAssignment("author", user);
-
-  console.log(assignment); // { user_id: '1', role_name: 'author' }
+  
 
   const permissions = await permissionManager.getPermissions();
 
-  console.log(permissions); // [ { name: 'createPost', action: 'createPost', subject: 'User', conditions: { isAuthor: true }, inverted: false, reason: 'You are not the author of the post' } ]
   const ability = defineAbilityFor(user, permissions);
   // test ability of user to CreatePost
   console.log(ability.can("createPost", user)); // true
